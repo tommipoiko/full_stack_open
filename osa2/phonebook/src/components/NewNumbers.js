@@ -1,15 +1,21 @@
+import APIHandler from './APIHandler'
+
 const NewNumbers = ({persons, setPersons, newName, setNewName, newNumber, setNewNumber}) => {
     const checkValues = (event) => {
       event.preventDefault()
       let arr = persons.filter(person => person.name === newName)
-      arr = arr.concat(persons.filter(person => person.number === newNumber))
+      let person = {name: newName, number: newNumber}
       if (arr.length === 0) {
-        setPersons(persons.concat({name: newName, number: newNumber}))
+        setPersons(persons.concat(person))
+        APIHandler.create(person)
       } else {
-        alert(`${newName} or ${newNumber} is already added to phonebook`)
+        if (window.confirm(`${newName} is already added to phonebook, replace old number with a new one?`)) {
+          setPersons(persons.filter(p => p.name !== newName).concat(person))
+          APIHandler.update(person)
+        }
       }
     }
-  
+
     return (
       <>
         <form onSubmit={checkValues}>

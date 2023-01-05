@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import axios from 'axios'
+import APIHandler from './components/APIHandler'
 import NewNumbers from './components/NewNumbers'
 import Phonebook from './components/Phonebook'
 import Filter from './components/Filter'
@@ -11,11 +11,7 @@ const App = () => {
   const [persons, setPersons] = useState([])
 
   useEffect(() => {
-    axios
-      .get('http://localhost:3001/persons')
-      .then(response => {
-        setPersons(response.data)
-      })
+    APIHandler.getAll().then(response => setPersons(response.data))
   }, [])
 
   return (
@@ -27,7 +23,7 @@ const App = () => {
                   newName={newName} setNewName={setNewName}
                   newNumber={newNumber} setNewNumber={setNewNumber}/>
       <h3>Numbers</h3>
-      <Phonebook persons={persons} filter={filter}/>
+      <Phonebook persons={persons} filter={filter} setPersons={setPersons}/>
     </div>
   )
 }
