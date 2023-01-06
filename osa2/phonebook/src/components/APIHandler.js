@@ -3,18 +3,15 @@ import axios from 'axios'
 const baseUrl = 'http://localhost:3001/persons'
 
 const getAll = () => {
-  return axios.get(baseUrl)
+  return (axios.get(baseUrl))
 }
 
 const create = newObject => {
-  return axios.post(baseUrl, newObject)
+  return (axios.post(baseUrl, newObject))
 }
 
-const remove = (name) => {
-  getAll().then(response => {
-    let person = response.data.find(p => p.name === name)
-    axios.delete(`${baseUrl}/${person.id}`)
-  })
+const remove = id => {
+  return (axios.delete(`${baseUrl}/${id}`))
 }
 
 const update = person => {
