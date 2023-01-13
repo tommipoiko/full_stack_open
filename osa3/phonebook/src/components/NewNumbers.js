@@ -1,6 +1,6 @@
 import APIHandler from './APIHandler'
 
-const NewNumbers = ({persons, setPersons, newName, setNewName, newNumber, setNewNumber, successMsg, setSuccessMsg}) => {
+const NewNumbers = ({persons, setPersons, newName, setNewName, newNumber, setNewNumber, successMsg, setSuccessMsg, errorMsg, setErrorMsg}) => {
     const checkValues = (event) => {
       event.preventDefault()
       let arr = persons.filter(person => person.name === newName)
@@ -12,8 +12,12 @@ const NewNumbers = ({persons, setPersons, newName, setNewName, newNumber, setNew
           setTimeout(() => {
             setSuccessMsg(null)
           }, 3000)
-        }).catch(() => {
-          console.log("Some error occurred")
+        }).catch(o => {
+          let error = o.response.data
+          setErrorMsg(error)
+          setTimeout(() => {
+            setErrorMsg(null)
+          }, 3000)
         })
       } else {
         if (window.confirm(`${newName} is already added to phonebook, replace old number with a new one?`)) {

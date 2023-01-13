@@ -27,7 +27,8 @@ const App = () => {
       <NewNumbers persons={persons} setPersons={setPersons}
                   newName={newName} setNewName={setNewName}
                   newNumber={newNumber} setNewNumber={setNewNumber}
-                  successMsg={successMsg} setSuccessMsg={setSuccessMsg}/>
+                  successMsg={successMsg} setSuccessMsg={setSuccessMsg}
+                  errorMsg={errorMsg} setErrorMsg={setErrorMsg}/>
       <SuccessMsg message={successMsg}/>
       <ErrorMsg message={errorMsg}/>
       <h3>Numbers</h3>
