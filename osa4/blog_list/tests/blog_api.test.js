@@ -32,31 +32,60 @@ test('unique identifier is called id', async () => {
 })
 
 test('post method successfully creates a new blog post', async () => {
-
-})
-
-/*
-test('a valid note can be added ', async () => {
-  const newNote = {
-    content: 'async/await simplifies making async calls',
-    important: true,
+  const newBlog = {
+    title: "temporary",
+    author: "t. emporary",
+    url: "www.temporary.com",
+    likes: 0
   }
 
   await api
-    .post('/api/notes')
-    .send(newNote)
+    .post('/api/blogs')
+    .send(newBlog)
     .expect(201)
     .expect('Content-Type', /application\/json/)
+  
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
 
-  const notesAtEnd = await helper.notesInDb()
-  expect(notesAtEnd).toHaveLength(helper.initialNotes.length + 1)
-
-  const contents = notesAtEnd.map(n => n.content)
-  expect(contents).toContain(
-    'async/await simplifies making async calls'
+  const titles = blogsAtEnd.map(n => n.title)
+  expect(titles).toContain(
+    'temporary'
   )
 })
-*/
+
+test('missing like-value is replaced with 0', async () => {
+  const newBlog = {
+    title: "temporary",
+    author: "t. emporary",
+    url: "www.temporary.com"
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(201)
+    .expect('Content-Type', /application\/json/)
+  
+  const blogsAtEnd = await helper.blogsInDb()
+  expect(blogsAtEnd).toHaveLength(helper.initialBlogs.length + 1)
+
+  const createdBlog = blogsAtEnd.filter(n => n.title === 'temporary')[0]
+  expect(createdBlog.likes).toBe(0)
+})
+
+test('missing url or title gives error code 400', async() => {
+  const newBlog = {
+    title: "temporary",
+    author: "t. emporary",
+    likes: 69
+  }
+
+  await api
+    .post('/api/blogs')
+    .send(newBlog)
+    .expect(400)
+})
 
 afterAll(() => {
   mongoose.connection.close()
