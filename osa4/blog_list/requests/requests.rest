@@ -4,10 +4,33 @@ GET http://localhost:3003/api/blogs
 
 POST http://localhost:3003/api/blogs HTTP/1.1
 content-type: application/json
+Authorization: bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InJvb3QiLCJpZCI6IjYzY2FiZmY0YzQ5N2Q3NTMzODRhNmI0NSIsImlhdCI6MTY3NDIzNjgzNX0.3OHyNwyEydgptZ2f-N2GhDr-b59HakeeuN101DGPD6s
 
 {
-  "title": "Kamasutra 2",
+  "title": "Kamasutra 5",
   "author": "Tommi & Ade",
   "url": "www.url.com",
-  "likes": 420
+  "likes": 90000,
+  "userId": "63cabff4c497d753384a6b45"
+}
+
+###
+
+POST http://localhost:3003/api/users HTTP/1.1
+content-type: application/json
+
+{
+    "username": "root",
+    "name": "Superuser",
+    "password": "salainen"
+}
+
+###
+
+POST http://localhost:3003/api/login HTTP/1.1
+content-type: application/json
+
+{
+    "username": "root",
+    "password": "salainen"
 }
