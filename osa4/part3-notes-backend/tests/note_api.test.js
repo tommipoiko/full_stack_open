@@ -5,7 +5,6 @@ const bcrypt = require('bcrypt')
 const helper = require('./test_helper')
 const app = require('../app')
 const api = supertest(app)
-
 const User = require('../models/user')
 const Note = require('../models/note')
 
@@ -33,7 +32,7 @@ describe('when there is initially some notes saved', () => {
 
     const contents = response.body.map(r => r.content)
     expect(contents).toContain(
-      'Browser can execute only Javascript'
+      'Browser can execute only JavaScript'
     )
   })
 
@@ -49,15 +48,11 @@ describe('when there is initially some notes saved', () => {
         .expect(200)
         .expect('Content-Type', /application\/json/)
 
-      const processedNoteToView = JSON.parse(JSON.stringify(noteToView))
-
-      expect(resultNote.body).toEqual(processedNoteToView)
+      expect(resultNote.body).toEqual(noteToView)
     })
 
     test('fails with statuscode 404 if note does not exist', async () => {
       const validNonexistingId = await helper.nonExistingId()
-
-      console.log(validNonexistingId)
 
       await api
         .get(`/api/notes/${validNonexistingId}`)
@@ -85,7 +80,6 @@ describe('when there is initially some notes saved', () => {
         .send(newNote)
         .expect(201)
         .expect('Content-Type', /application\/json/)
-
 
       const notesAtEnd = await helper.notesInDb()
       expect(notesAtEnd).toHaveLength(helper.initialNotes.length + 1)
@@ -181,13 +175,13 @@ describe('when there is initially one user at db', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/)
 
-    expect(result.body.error).toContain('username must be unique')
+    expect(result.body.error).toContain('expected `username` to be unique')
 
     const usersAtEnd = await helper.usersInDb()
     expect(usersAtEnd).toHaveLength(usersAtStart.length)
   })
 })
 
-afterAll(() => {
-  mongoose.connection.close()
+afterAll(async () => {
+  await mongoose.connection.close()
 })
