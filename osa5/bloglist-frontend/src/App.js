@@ -5,12 +5,10 @@ import loginService from './services/login'
 import SuccessMsg from './components/SuccessMsg'
 import ErrorMsg from './components/ErrorMsg'
 import Togglable from './components/Togglable'
+import BlogForm from './components/BlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
   const [username, setUsername] = useState('') 
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -53,18 +51,20 @@ const App = () => {
     }
   }
 
-  const addBlog = (event) => {
-    event.preventDefault()
+  const addBlog = ({title, author, url, setTitle, setAuthor, setUrl}) => {
     const blogObject = {
       title: title,
       author: author,
-      url: url
+      url: url,
+      likes: 0
     }
 
     blogService
       .create(blogObject)
       .then(returnedBlog => {
-        setBlogs(blogs.concat(returnedBlog))
+        blogService.getAll().then(blogs =>
+          setBlogs( blogs )
+        )
         setTitle('')
         setAuthor('')
         setUrl('')
@@ -77,41 +77,6 @@ const App = () => {
   }
 
   const blogFormRef = useRef()
-
-  const blogForm = () => (
-    <form onSubmit={addBlog}>
-      <div>
-        title:
-        <input
-          type="text"
-          value={title}
-          name='title'
-          onChange={({ target }) => setTitle(target.value)}
-        />
-      </div>
-      <div>
-        author:
-        <input
-          type="text"
-          value={author}
-          name='author'
-          onChange={({ target }) => setAuthor(target.value)}
-        />
-      </div>
-      <div>
-        url:
-        <input
-          type="text"
-          value={url}
-          name='url'
-          onChange={({ target }) => setUrl(target.value)}
-        />
-      </div>
-      <div>
-        <button type="submit">create</button>
-      </div>
-    </form>  
-  )
 
   if (user === null) {
     return (
@@ -150,12 +115,15 @@ const App = () => {
       <div>{user.name} has logged in</div>
       <br></br>
       <Togglable buttonLabel="new blog" ref={blogFormRef}>
-        <div>{blogForm()}</div>
+        <BlogForm createBlog={addBlog}/>
       </Togglable>
       <br></br>
-      {blogs.map(blog =>
-        <Blog key={blog.id} blog={blog} />
-      )}
+      {blogs
+        .sort((a, b) => b.likes - a.likes)
+        .map(blog => {
+          return <Blog blog={blog} key={blog.title + blog.author + blog.url + blog.likes}/>
+        })
+      }
     </div>
   )
 }

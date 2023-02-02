@@ -7,8 +7,8 @@ const setToken = newToken => {
   token = `bearer ${newToken}`
 }
 
-const getAll = () => {
-  const request = axios.get(baseUrl)
+const getAll = async () => {
+  const request = await axios.get(baseUrl)
   return request.then(response => response.data)
 }
 
@@ -21,10 +21,15 @@ const create = async newObject => {
   return response.data
 }
 
-const update = (id, newObject) => {
-  const request = axios.put(`${ baseUrl }/${id}`, newObject)
+const update = async (id, newObject) => {
+  const request = await axios.put(`${ baseUrl }/${id}`, newObject)
+  return request.then(response => response.data)
+}
+
+const remove = async id => {
+  const request = await axios.delete(`${baseUrl}/${id}`)
   return request.then(response => response.data)
 }
 
 // eslint-disable-next-line
-export default { getAll, create, update, setToken }
+export default { getAll, create, update, setToken, remove }
