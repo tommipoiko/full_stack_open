@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Blog from './components/Blog'
 import blogService from './services/blogs'
 import loginService from './services/login'
 import SuccessMsg from './components/SuccessMsg'
 import ErrorMsg from './components/ErrorMsg'
+import Togglable from './components/Togglable'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
@@ -67,12 +68,15 @@ const App = () => {
         setTitle('')
         setAuthor('')
         setUrl('')
+        blogFormRef.current.toggleVisibility()
         setSuccessMsg(`a new blog ${returnedBlog.title} by ${returnedBlog.author} added`)
         setTimeout(() => {
           setSuccessMsg(null)
         }, 5000)
       })
   }
+
+  const blogFormRef = useRef()
 
   const blogForm = () => (
     <form onSubmit={addBlog}>
@@ -145,7 +149,9 @@ const App = () => {
       <SuccessMsg message={successMsg}/>
       <div>{user.name} has logged in</div>
       <br></br>
-      <div>{blogForm()}</div>
+      <Togglable buttonLabel="new blog" ref={blogFormRef}>
+        <div>{blogForm()}</div>
+      </Togglable>
       <br></br>
       {blogs.map(blog =>
         <Blog key={blog.id} blog={blog} />
