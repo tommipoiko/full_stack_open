@@ -8,8 +8,9 @@ const setToken = newToken => {
 }
 
 const getAll = async () => {
-  const request = await axios.get(baseUrl)
-  return request.then(response => response.data)
+  const request = axios.get(baseUrl)
+  const response = await request
+  return response.data
 }
 
 const create = async newObject => {
@@ -27,8 +28,13 @@ const update = async (id, newObject) => {
 }
 
 const remove = async id => {
-  const request = await axios.delete(`${baseUrl}/${id}`)
-  return request.then(response => response.data)
+  const config = {
+    headers: { Authorization: token },
+  }
+
+  const request = axios.delete(`${baseUrl}/${id}`, config)
+  const response = await request
+  return response.data
 }
 
 // eslint-disable-next-line
