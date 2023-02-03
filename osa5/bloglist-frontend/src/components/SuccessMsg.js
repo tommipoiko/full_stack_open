@@ -1,4 +1,4 @@
-const SuccessMsg = ({message}) => {
+const SuccessMsg = ({ message }) => {
   if (message === null) {
     return null
   } else {

@@ -9,7 +9,7 @@ import BlogForm from './components/BlogForm'
 
 const App = () => {
   const [blogs, setBlogs] = useState([])
-  const [username, setUsername] = useState('') 
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [successMsg, setSuccessMsg] = useState(null)
@@ -18,7 +18,7 @@ const App = () => {
   useEffect(() => {
     blogService.getAll().then(blogs =>
       setBlogs( blogs )
-    )  
+    )
   }, [])
 
   useEffect(() => {
@@ -51,7 +51,7 @@ const App = () => {
     }
   }
 
-  const addBlog = ({title, author, url, setTitle, setAuthor, setUrl}) => {
+  const addBlog = ({ title, author, url, setTitle, setAuthor, setUrl }) => {
     const blogObject = {
       title: title,
       author: author,
@@ -76,6 +76,20 @@ const App = () => {
       })
   }
 
+  const likeBlog = id => {
+    const blog = blogs.find(b => b.id === id)
+    let newBlog = {
+      user: blog.user._id,
+      likes: blog.likes + 1,
+      author: blog.author,
+      title: blog.title,
+      url: blog.url
+    }
+    blog.likes += 1
+    setBlogs(blogs.filter(b => b.id !== id).concat(blog))
+    blogService.update(blog.id, newBlog)
+  }
+
   const blogFormRef = useRef()
 
   if (user === null) {
@@ -86,7 +100,7 @@ const App = () => {
         <form onSubmit={handleLogin}>
           <div>
             username
-              <input
+            <input
               type="text"
               value={username}
               name="Username"
@@ -95,7 +109,7 @@ const App = () => {
           </div>
           <div>
             password
-              <input
+            <input
               type="password"
               value={password}
               name="Password"
@@ -121,7 +135,7 @@ const App = () => {
       {blogs
         .sort((a, b) => b.likes - a.likes)
         .map(blog => {
-          return <Blog blog={blog} blogs={blogs} setBlogs={setBlogs} login={user.username} key={blog.title + blog.author + blog.url + blog.likes}/>
+          return <Blog blog={blog} blogs={blogs} setBlogs={setBlogs} login={user.username} likeBlog={() => likeBlog(blog.id)} key={blog.id}/>
         })
       }
     </div>

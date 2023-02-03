@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import blogService from '../services/blogs'
 
-const Blog = ({blog, blogs, setBlogs, login}) => {
+const Blog = ({ blog, blogs, setBlogs, login, likeBlog }) => {
   const [viewAll, setViewAll] = useState(false)
-  const [likes, setLikes] = useState(!blog.likes ? 0 : blog.likes)
 
   const blogStyle = {
     paddingTop: 10,
@@ -22,18 +21,6 @@ const Blog = ({blog, blogs, setBlogs, login}) => {
     setViewAll(!viewAll)
   }
 
-  const likeBlog = () => {
-    let newBlog = {
-      user: user._id,
-      likes: likes + 1,
-      author: a,
-      title: t,
-      url: u
-    }
-    setLikes(likes + 1)
-    blogService.update(blog.id, newBlog)
-  }
-
   const deleteBlog = () => {
     if (window.confirm(`Remove blog ${t} by ${a}?`)) {
       blogService
@@ -46,17 +33,17 @@ const Blog = ({blog, blogs, setBlogs, login}) => {
 
   if (viewAll) {
     return (
-      <div style={blogStyle}>
+      <div style={blogStyle} className="blog">
         {t} -written by- {a}<button onClick={switchView}>hide</button><br></br>
         {u}<br></br>
-        likes {likes}<button onClick={likeBlog}>like</button><br></br>
+        likes {!blog.likes ? 0 : blog.likes}<button onClick={likeBlog}>like</button><br></br>
         {user.username}<br></br>
         {user.username === login ? <button onClick={deleteBlog}>remove</button> : <></>}
       </div>
     )
   } else {
     return (
-      <div style={blogStyle}>
+      <div style={blogStyle} className="blog">
         {`${t} -written by- ${a}`}
         <button onClick={switchView}>view</button>
       </div>
