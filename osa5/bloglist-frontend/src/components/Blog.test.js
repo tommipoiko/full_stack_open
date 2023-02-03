@@ -50,6 +50,7 @@ describe('<Blog />', () => {
   const mockSetBlogs = jest.fn()
   const mockLikeBlog = jest.fn()
 
+  // eslint-disable-next-line no-unused-vars
   let container
 
   beforeEach(() => {
