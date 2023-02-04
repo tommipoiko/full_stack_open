@@ -34,9 +34,9 @@ const Blog = ({ blog, blogs, setBlogs, login, likeBlog }) => {
   if (viewAll) {
     return (
       <div style={blogStyle} className="blog">
-        {t} -written by- {a}<button onClick={switchView}>hide</button><br></br>
+        {t} -written by- {a}<button onClick={switchView} className={'hide-button'}>hide</button><br></br>
         {u}<br></br>
-        likes {!blog.likes ? 0 : blog.likes}<button onClick={likeBlog}>like</button><br></br>
+        likes {!blog.likes ? 0 : blog.likes}<button onClick={likeBlog} className={'like-button'}>like</button><br></br>
         {user.username}<br></br>
         {user.username === login ? <button onClick={deleteBlog}>remove</button> : <></>}
       </div>
@@ -45,7 +45,7 @@ const Blog = ({ blog, blogs, setBlogs, login, likeBlog }) => {
     return (
       <div style={blogStyle} className="blog">
         {`${t} -written by- ${a}`}
-        <button onClick={switchView}>view</button>
+        <button onClick={switchView} className={'view-button'}>view</button>
       </div>
     )
   }
