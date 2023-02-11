@@ -107,7 +107,21 @@ const CreateNew = (props) => {
   )
 }
 
+const Notification = ({ notification }) => {
+  if (notification === '') {
+    return null
+  } else {
+    return (
+      <div>
+        {notification}
+      </div>
+    )
+  }
+}
+
 const App = () => {
+  const navigate = useNavigate()
+
   const [anecdotes, setAnecdotes] = useState([
     {
       content: 'If it hurts, do it more often',
@@ -130,6 +144,8 @@ const App = () => {
   const addNew = (anecdote) => {
     anecdote.id = Math.round(Math.random() * 10000)
     setAnecdotes(anecdotes.concat(anecdote))
+    navigate('/')
+    notify(`a new anecdote ${anecdote.content} created!`)
   }
 
   const anecdoteById = (id) =>
@@ -146,6 +162,13 @@ const App = () => {
     setAnecdotes(anecdotes.map(a => a.id === id ? voted : a))
   }
 
+  const notify = n => {
+    setNotification(n)
+    setTimeout(() => {
+      setNotification('')
+    }, 5000)
+  }
+
   const match = useMatch('/:id')
 
   const anecdote = match ? anecdotes.find(a => a.id === Number(match.params.id)) : null
@@ -154,6 +177,7 @@ const App = () => {
     <div>
       <h1>Software anecdotes</h1>
       <Menu />
+      <Notification notification={notification} />
       <Routes>
         <Route path="/" element={<AnecdoteList anecdotes={anecdotes} />}/>
         <Route path="/:id" element={<Anecdote anecdote={anecdote} />}/>
