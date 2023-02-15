@@ -11,7 +11,7 @@ export const ALL_AUTHORS = gql`
 `
 
 export const ALL_BOOKS = gql`
-  query Query {
+  query AllBooks {
     allBooks {
       author
       genres
@@ -22,12 +22,34 @@ export const ALL_BOOKS = gql`
 `
 
 export const AUTHOR_COUNT = gql`
-  query Query {
+  query authorCount {
     authorCount
   }
 `
+
 export const BOOK_COUNT = gql`
-  query Query {
+  query bookCount {
     bookCount
+  }
+`
+
+export const ADD_BOOK = gql`
+  mutation addBook($title: String!, $author: String!, $published: Int!, $genres: [String!]!) {
+    addBook(title: $title, author: $author, published: $published, genres: $genres) {
+      title
+      published
+      genres
+      author
+    }
+  }
+`
+
+export const EDIT_AUTHOR = gql`
+  mutation Mutation($name: String!, $setBornTo: Int!) {
+    editAuthor(name: $name, setBornTo: $setBornTo) {
+      bookCount
+      born
+      name
+    }
   }
 `
