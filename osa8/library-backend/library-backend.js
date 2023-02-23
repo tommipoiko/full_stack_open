@@ -1,170 +1,72 @@
 const { ApolloServer } = require('@apollo/server')
-const { startStandaloneServer } = require('@apollo/server/standalone')
-const { GraphQLError } = require('graphql')
+const { expressMiddleware } = require('@apollo/server/express4')
+const { ApolloServerPluginDrainHttpServer } = require('@apollo/server/plugin/drainHttpServer')
+const { makeExecutableSchema } = require('@graphql-tools/schema')
+const express = require('express')
+const cors = require('cors')
+const http = require('http')
 const mongoose = require('mongoose')
 mongoose.set('strictQuery', false)
 const jwt = require('jsonwebtoken')
-const Author = require('./models/author')
-const Book = require('./models/book')
 const User = require('./models/user')
 const typeDefs = require('./schema')
-
+const resolvers = require('./resolvers')
+const { WebSocketServer } = require('ws')
+const { useServer } = require('graphql-ws/lib/use/ws')
 require('dotenv').config()
 const MONGODB_URI = process.env.MONGODB_URI
 console.log('connecting to', MONGODB_URI)
-mongoose.connect(MONGODB_URI)
+mongoose
+  .connect(MONGODB_URI)
   .then(() => {
     console.log('connected to MongoDB')
   })
   .catch((error) => {
     console.log('error connection to MongoDB:', error.message)
   })
-
-const resolvers = {
-  Query: {
-    bookCount: () => Book.collection.countDocuments(),
-    authorCount: () => Author.collection.countDocuments(),
-    allBooks: async (root, args) => {
-      let ret = await Book.find().find({}).populate('author')
-      if (args.author) {
-        ret = ret.filter(b => b.author === args.author)
-      }
-      if (args.genre) {
-        ret = ret.filter(b => b.genres.includes(args.genre))
-      }
-      return (ret)
-    },
-    allAuthors: async () => {
-      const result = await Author.find({})
-      return (result)
-    },
-    me: (root, args, context) => {
-      return context.currentUser
-    }
-  },
-  Author: {
-    bookCount: async (root) => {
-      let books = await Book.find().find({}).populate('author')
-      books = books.filter(b => b.author.name === root.name)
-      return (books.length)
-    }
-  },
-  Mutation: {
-    addBook: async (root, args, context) => {
-      const currentUser = context.currentUser
-      if (!currentUser) {
-        throw new GraphQLError('not authenticated', {
-          extensions: {
-            code: 'BAD_USER_INPUT',
-          }
-        })
-      }
-
-      let a = await Author.findOne({ name: args.author })
-      if (a === undefined || a.length === 0) {
-        a = new Author({ name: args.author })
-        try {
-          await a.save()
-        } catch (error) {
-          throw new GraphQLError('Author name too short', {
-            extensions: {
-              code: 'BAD_USER_INPUT',
-              invalidArgs: args.author,
-              error
-            }
-          })
+// setup is now within a function
+const start = async () => {
+  const app = express()
+  const httpServer = http.createServer(app)
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: '/',
+  })
+  const schema = makeExecutableSchema({ typeDefs, resolvers })
+  const serverCleanup = useServer({ schema }, wsServer)
+  const server = new ApolloServer({
+    schema: makeExecutableSchema({ typeDefs, resolvers }),
+    plugins: [ApolloServerPluginDrainHttpServer({ httpServer }),
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
+  })
+  await server.start()
+  app.use(
+    '/',
+    cors(),
+    express.json(),
+    expressMiddleware(server, {
+      context: async ({ req }) => {
+        const auth = req ? req.headers.authorization : null
+        if (auth && auth.startsWith('Bearer ')) {
+          const decodedToken = jwt.verify(auth.substring(7), process.env.JWT_SECRET)
+          const currentUser = await User.findById(decodedToken.id)
+          return { currentUser }
         }
-      }
-      a = await Author.findOne({ name: args.author })
-      const book = new Book({...args, author: a.id})
-      try {
-        await book.save()
-      } catch (error) {
-        throw new GraphQLError('Title name too short', {
-          extensions: {
-            code: 'BAD_USER_INPUT',
-            invalidArgs: args.title,
-            error
-          }
-        })
-      }
-      let ret = await Book.find().find().populate('author')
-      ret = ret.filter(b => b.title === args.title)[0]
-      return ret
-    },
-    editAuthor: async (root, args, context) => {
-      const currentUser = context.currentUser
-      if (!currentUser) {
-        throw new GraphQLError('not authenticated', {
-          extensions: {
-            code: 'BAD_USER_INPUT',
-          }
-        })
-      }
-
-      const a = await Author.findOne({ name: args.name })
-      if (a) {
-        a.born = args.setBornTo
-        return (a.save())
-      }
-    },
-    createUser: async (root, args) => {
-      const user = new User({ username: args.username, favouriteGenre: args.favouriteGenre })
-      try {
-        await user.save()
-      } catch (error) {
-        throw new GraphQLError('Creating the user failed', {
-          extensions: {
-            code: 'BAD_USER_INPUT',
-            invalidArgs: args.username,
-            error
-          }
-        })
-      }
-      return user
-    },
-    login: async (root, args) => {
-      const user = await User.findOne({ username: args.username })
-
-      if ( !user || args.password !== 'secret' ) {
-        throw new GraphQLError('wrong credentials', {
-          extensions: {
-            code: 'BAD_USER_INPUT'
-          }
-        })        
-      }
-
-      const userForToken = {
-        username: user.username,
-        id: user._id,
-      }
-
-      const ret = { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
-      // console.log(ret)
-      // Use above if Apollo Server token return vittuilee
-
-      return ret
-    }
-  }
+      },
+    }),
+  )
+  const PORT = 4000
+  httpServer.listen(PORT, () =>
+    console.log(`Server is now running on http://localhost:${PORT}`)
+  )
 }
-
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-})
-
-startStandaloneServer(server, {
-  listen: { port: 4000 },
-  context: async ({ req, res }) => {
-    const auth = req ? req.headers.authorization : null
-    if (auth && auth.startsWith('Bearer ')) {
-      const decodedToken = jwt.verify(
-        auth.substring(7), process.env.JWT_SECRET
-      )
-      const currentUser = await User.findById(decodedToken.id)
-      return { currentUser }
-    }
-  },
-}).then(({ url }) => {
-  console.log(`Server ready at ${url}`)
-})
+start()
