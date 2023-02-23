@@ -33,7 +33,6 @@ const Authors = (props) => {
     const p = {name: name.value, setBornTo: intBorn}
     editAuthor({variables: p})
 
-    setName(null)
     setBorn('')
   }
 

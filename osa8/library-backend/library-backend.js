@@ -195,7 +195,7 @@ const resolvers = {
       }
 
       const ret = { value: jwt.sign(userForToken, process.env.JWT_SECRET) }
-      console.log(ret)
+      // console.log(ret)
       // Use above if Apollo Server token return vittuilee
 
       return ret
