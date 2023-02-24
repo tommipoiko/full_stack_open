@@ -7,20 +7,20 @@ app.get('/hello', (_req, res) => {
 });
 
 app.get('/bmi', (req, res) => {
-  const h = String(req.query.height)
-  const w = String(req.query.weight)
+  const h = String(req.query.height);
+  const w = String(req.query.weight);
   try {
-    const { height, weight } = parseArguments([h, w])
+    const { height, weight } = parseArguments([h, w]);
     const ret = {
       weight: weight,
       height: height,
       bmi: calculateBmi(height, weight)
-    }
+    };
     res.send(ret);
   } catch (error) {
     const ret = {
       error: 'malformatted parameters'
-    }
+    };
     res.send(ret);
   }
 });
