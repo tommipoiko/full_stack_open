@@ -3,17 +3,17 @@ interface exerciseValues {
   exerciseDays: number[];
 }
 
-const checkArguments = (args: string[]): exerciseValues => {
-  if (args.length < 4) throw new Error('Not enough arguments');
+export const checkArguments = (args: number[]): exerciseValues => {
+  if (args.length < 2) throw new Error('Not enough arguments');
 
-  if (!isNaN(Number(args[2]))) {
-    args.slice(3).filter(n => !isNaN(Number(n)));
-    if (args.slice(3).length !== args.slice(3).filter(n => !isNaN(Number(n))).length) {
+  if (!isNaN(Number(args[0]))) {
+    args.slice(1).filter(n => !isNaN(Number(n)));
+    if (args.slice(1).length !== args.slice(1).filter(n => !isNaN(Number(n))).length) {
       throw new Error('Provided values were not numbers!');
     }
-    const d = args.slice(3).map(n => Number(n));
+    const d = args.slice(1).map(n => Number(n));
     return {
-      target: Number(args[2]),
+      target: Number(args[0]),
       exerciseDays: d
     };
   } else {
@@ -56,7 +56,7 @@ const getRatingDescription = (rating: number): string => {
   return ratingDescription;
 };
 
-const calculateExercises = (dailyExercise: number[], target: number): Result => {
+export const calculateExercises = (dailyExercise: number[], target: number): Result => {
   const td = dailyExercise.filter(d => d !== 0).length;
   const avg = dailyExercise.reduce((a, b) => a + b, 0) / dailyExercise.length;
   const rating = getRating(avg, target);
@@ -72,14 +72,3 @@ const calculateExercises = (dailyExercise: number[], target: number): Result => 
   };
   return ret;
 };
-
-try {
-  const { target, exerciseDays } = checkArguments(process.argv);
-  console.log(calculateExercises(exerciseDays, target));
-} catch (error: unknown) {
-  let errorMessage = 'Something bad happened.';
-  if (error instanceof Error) {
-    errorMessage += ' Error: ' + error.message;
-  }
-  console.log(errorMessage);
-}
