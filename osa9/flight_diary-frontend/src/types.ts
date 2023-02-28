@@ -5,4 +5,9 @@ export interface Diary {
   visibility: string;
 }
 
-export type NewDiary = Omit<Diary, "id">
+export interface NewDiary {
+  date: string;
+  weather: string;
+  visibility: string;
+  comment: string;
+}

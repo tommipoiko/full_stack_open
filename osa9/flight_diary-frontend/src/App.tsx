@@ -8,16 +8,16 @@ const App = () => {
   const [diaries, setDiaries] = useState<Diary[]>([]);
 
   useEffect(() => {
-    const fetchPatientList = async () => {
-      const diaries = await diaryService.getAll();
-      setDiaries(diaries);
+    const fetchDiaryList = async () => {
+      const response = await diaryService.getAll();
+      setDiaries(response.data);
     };
-    void fetchPatientList();
+    void fetchDiaryList();
   }, []);
 
   return (
     <div>
-      <AddNewEntry />
+      <AddNewEntry diaryEntries={diaries} setDiaries={setDiaries}/>
       <DiaryEntries diaryEntries={diaries}/>
     </div>
   );
