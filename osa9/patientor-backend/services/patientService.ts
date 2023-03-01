@@ -1,4 +1,4 @@
-import { NewPatientEntry, NonSensitivePatientEntry, PatientEntry } from '../src/types';
+import { NewPatientEntry, NonSensitivePatientEntry, Patient, PatientEntry } from '../src/types';
 import patients from '../data/patients';
 import { v1 as uuid } from 'uuid';
 
@@ -19,15 +19,19 @@ const getPatientsNoSSN = (): NonSensitivePatientEntry[] => {
 
 const addPatient = (entry: NewPatientEntry): PatientEntry => {
   const newPatient = {
-    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call
     id: uuid(),
     ...entry
   };
   return newPatient;
 };
 
+const getPatientByID = (id: string): Patient | undefined => {
+  return patients.find(p => p.id === id);
+};
+
 export default {
   getPatients,
   getPatientsNoSSN,
-  addPatient
+  addPatient,
+  getPatientByID
 };
