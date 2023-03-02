@@ -32,4 +32,3 @@ const create = async (object: PatientFormValues) => {
 export default {
   getAll, create, getPatient
 };
-
